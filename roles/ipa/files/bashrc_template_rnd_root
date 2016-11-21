@@ -1,0 +1,44 @@
+# .bashrc
+
+# User specific aliases and functions
+
+# Source global definitions
+if [ -f /etc/bashrc ]; then
+        . /etc/bashrc
+fi
+
+# Aliases
+
+alias ..="cd .."
+alias df="df -h"
+alias du="du -h"
+alias gtail="tail"
+alias les="less"
+alias ll="/bin/ls -aFlh --color=tty"
+alias ls="/bin/ls -AFsh --color=tty"
+alias lsd="ls -d"
+alias mtail="multitail"
+alias nano="nano -w -z"
+alias pico="nano -w -z"
+alias ps="ps -ef"
+alias psless="ps|less"
+alias psmore="ps|more"
+alias pss="ps|sort -bf -k 2n"
+alias v="ll"
+alias vd="ll -d"
+
+# Functions
+
+fls () { [ -z "$*" ] && find . -ls || find $* -ls; }
+h () { history $* |more; }
+psg () { ps |egrep -i $* |egrep -v egrep; }
+vg () { ll |egrep -i $* |egrep -v egrep; }
+vless () { ll --color=always $* |less -R; }
+vmore () { ll --color=always $* |more; }
+
+# Shell Prompt
+
+#PS1='\n\u@\h:\w\n\$ '
+PS1='\n\
+\[\e[0;33m\]\u@\H\[\e[0;30;1m\]:\[\e[0;33m\]\w \[\e[0;30;1m\]· \@ \d ·\[\e[0m\] \n\
+\[\e[0;31m\]!\! \[\e[0;37;1m\]\$\[\e[0m\] '

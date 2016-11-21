@@ -1,0 +1,5 @@
+---
+# handlers file for vm
+
+- name: restart zabbix-agent
+  service: name=zabbix-agent state=restarted enabled=yes

@@ -1,0 +1,8 @@
+---
+# handlers file for openstack
+
+- name: restart sssd
+  service: name=sssd.service state=restarted enabled=yes
+
+- name: restart sshd
+  service: name=sshd.service state=restarted enabled=yes
