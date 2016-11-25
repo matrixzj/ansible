@@ -1,0 +1,46 @@
+---
+- hosts: all
+  gather_facts: False
+
+  tasks: 
+#    - name: gather version info
+#      setup:
+#        filter: ansible_distribution_major_version
+#
+    - name: get systemd version
+      shell: rpm -q --queryformat %{version}-%{release} systemd
+#      shell: yum list installed systemd
+      register: version
+
+#    - name: get systemd release
+#      shell: rpm -q --queryformat %{release} systemd
+#      register: release
+
+#    - name: check release length
+#      debug:
+#        msg: "{{ release.stdout.split('.') | count }}"
+#      
+#    - name: show current version
+#      debug: 
+#        msg: "{{ release.stdout.split('.')[2] }}"
+##      when: "{{ release.stdout.split('.') | count }} == 3" 
+##      when: "{{ version.stdout | int }} < 209 or release.stdout.split('.')[0] < 19 or release.stdout.split('.')[2] < 9"
+##      when: "version.stdout | int }} < 209"
+##      when: "release.stdout.split('.')[0] < 19"
+#      when: "{{ release.stdout.split('.')[2] | int }} < 9"
+      
+
+    - name: update systemd
+      yum:
+        name: systemd
+        state: latest
+      register: result
+#      debug:
+#        msg: "{{ inventory_hostname }} is running {{ version.stdout }}, need to be update"
+      when: "{{ version.stdout | version_compare('219-19.el7_2.9','<') }}"
+#      when: "({{ release.stdout.split('.') | count }} == 2 and ({{ version.stdout | int }} < 219 or {{ release.stdout.split('.')[0] | int }} != 30 )) or ({{ release.stdout.split('.') | count }} == 3 and ({{ version.stdout | int }} < 209 or {{ release.stdout.split('.')[0] | int }} < 19 or {{ release.stdout.split('.')[2] | int }} < 9))"
+
+    - name: show result
+      debug:
+        msg: "{{ result.stdout_lines }}"
+      when: "{{ version.stdout | version_compare('219-19.el7_2.9','<') }}"
