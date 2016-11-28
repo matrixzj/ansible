@@ -1,0 +1,23 @@
+---
+- name: get ipaddr
+  shell: hostname -i
+  register: ipv4
+
+- name: check dns 
+  debug:
+    msg="{{ lookup('dig', '{{ ipv4.stdout }}', 'qtype=PTR') }}"
+  register: dns
+
+- name: get hostname
+  shell: hostname
+  register: hostname
+
+- name: hostname need to be checked
+  debug:
+    msg: " {{ hostname.stdout }} need to be checked"
+  failed_when: '"{{ dns.msg }}".islower() == False or "{{ dns.msg }}" != "{{ hostname.stdout }}."'
+
+- name: show dns is correct or not
+  debug:
+    msg: "hostname is ok to go"
+  when: '"{{ dns.msg }}".islower() == True and "{{ dns.msg }}" == "{{ hostname.stdout }}."'
