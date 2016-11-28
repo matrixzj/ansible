@@ -1,0 +1,86 @@
+---
+- hosts: all
+  gather_facts: false
+  vars:
+    prodbashps: |
+      PS1=\'\\\n\\\
+      \[\e[0;36m\]\u@\H\[\e[0;30;1m\]:\[\e[0;33m\]\w \[\e[0;30;1m\]· \@ \d ·\[\e[0m\] \\\n\\\
+      \[\e[0;31m\]!\! \[\e[0;37;1m\]\$\[\e[0m\] \'
+    stgbashps: |
+      PS1=\'\\\n\\\
+      \[\e[0;32m\]\u@\H\[\e[0;30;1m\]:\[\e[0;33m\]\w \[\e[0;30;1m\]· \@ \d ·\[\e[0m\] \\\n\\\
+      \[\e[0;31m\]!\! \[\e[0;37;1m\]\$\[\e[0m\] \'
+    devbashps: |
+      PS1='\n\
+      \[\e[0;33m\]\u@\H\[\e[0;30;1m\]:\[\e[0;33m\]\w \[\e[0;30;1m\]· \@ \d ·\[\e[0m\] \n\
+      \[\e[0;31m\]!\! \[\e[0;37;1m\]\$\[\e[0m\] '
+ 
+  tasks:
+  - name: get current hostname
+    shell: hostname
+    register: cur_hostname
+
+  - name: convert hostname to lowercase
+    hostname:
+      name: "{{ cur_hostname | lower }}"
+    when: cur_hostname.islower() == False
+    tags: hostname
+
+  - name: get ipaddr
+    shell: hostname -i
+    register: ipv4
+
+  - name: check dns
+    debug:
+      msg="{{ lookup('dig', '{{ ipv4.stdout }}', 'qtype=PTR') }}"
+    register: dns_hostname
+
+  - name: hostname need to be checked
+    debug:
+      msg: " {{ inventory_hostname }} hostname need to be checked"
+    failed_when: '"{{ dns_hostname.msg }}".islower() == False or "{{ dns_hostname.msg }}" != "{{ cur_hostname.stdout }}."'
+
+  - name: hostname is ready to go
+    debug:
+      msg: "{{ inventory_hostname }} hostname is ready to go"
+    when: '"{{ dns_hostname.msg }}".islower() == True and "{{ dns_hostname.msg }}" == "{{ cur_hostname.stdout }}."'
+  
+  - name: find all bashrc
+    shell: find /home -type f -name .bashrc
+    register: result
+    tags: ps
+
+  - name: remove PS1 from all bashrc
+    replace:
+      backup: yes
+      dest: "{{ item }}"
+      regexp: PS1=.*\n.*m.*\n.*31m.*
+      replace: ''
+    with_items:
+      - "{{ result.stdout_lines }}"
+      - /root/.bashrc
+      - /etc/skel/.bashrc
+    tags: ps
+
+  - name: append ps1 to bashrc in prod
+    lineinfile: |
+      dest="{{ item }}"
+      line="{{ prodbashps }}"
+      insertafter=EOF
+    with_items:
+      - "{{ result.stdout_lines }}"
+      - /root/.bashrc
+      - /etc/skel/.bashrc
+    when: env == "prod"
+    tags: ps
+ 
+ - name: append ps1 to bashrc in dev
+    lineinfile: |
+      dest="{{ item }}"
+      line="{{ devbashps }}"
+      insertafter=EOF
+    with_items:
+      - "{{ result.stdout_lines }}"
+      - /root/.bashrc
+      - /etc/skel/.bashrc
+    when: env == "dev"
