@@ -1,8 +1,0 @@
----
-# handlers file for hypervisor
-
-- name: restart network
-  service: name=network state=restarted
-
-- name: restart libvirtd
-  service: name=libvirtd state=restarted

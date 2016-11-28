@@ -1,8 +1,0 @@
----
-# handlers file for ipa
-
-- name: restart sssd
-  service: name=sssd.service state=restarted enabled=yes
-
-- name: restart oddjobd
-  service: name=oddjobd.service state=restarted enabled=yes
