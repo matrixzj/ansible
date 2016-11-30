@@ -15,7 +15,7 @@
     when: cur_hostname.stdout.islower() == False
     tags: hostname
 
-  - include: tasks/check_hostname.yml
+#  - include: tasks/check_hostname.yml
   
   - name: find all bashrc
     shell: find /home -type f -name .bashrc
@@ -44,6 +44,7 @@
       - /root/.bashrc
       - /etc/skel/.bashrc
     tags: ps
+    when: "{{ env }} is defined"
 
   - name: append ps1 to bashrc
     lineinfile: |
@@ -54,4 +55,5 @@
       - "{{ result.stdout_lines }}"
       - /root/.bashrc
       - /etc/skel/.bashrc
+    when: "{{ env }} is defined"
     tags: ps
