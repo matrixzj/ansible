@@ -8,6 +8,7 @@
   - name: get current hostname
     shell: hostname
     register: cur_hostname
+    tags: hostname
 
   - name: convert hostname to lowercase
     hostname:
@@ -22,18 +23,21 @@
     register: result
     tags: ps
 
-#  - name: replace PS1 
-#    blockinfile:
-#      backup: yes
-#      block: "{{ bashps }}"
-#      dest: "{{ item }}"
-#      state: present
-#      insertafter: PS1=.*\n.*m.*\n.*31m.*
-#    with_items:
-#      - /root/.bashrc
-#    tags: ps
+  - name: remove PS1 from all bashrc I
+    replace:
+      backup: yes
+      dest: "{{ item }}"
+      regexp: \# this block is managed by Ansible\nPS1=.*\n.*m.*\n.*31m.*\n# block end
+      replace: ''
+    with_items:
+      - "{{ result.stdout_lines }}"
+      - /root/.bashrc
+      - /etc/skel/.bashrc
+      - /etc/bashrc
+    tags: ps
+    when: env is defined
 
-  - name: remove PS1 from all bashrc
+  - name: remove PS1 from all bashrc II
     replace:
       backup: yes
       dest: "{{ item }}"
@@ -47,15 +51,32 @@
     tags: ps
     when: env is defined
 
-  - name: append ps1 to bashrc
-    lineinfile: |
-      dest="{{ item }}"
-      line="{{ bashps }}"
-      insertafter=EOF
+  - name: replace PS1 
+    blockinfile:
+      backup: yes
+      block: "{{ bashps }}"
+      dest: "{{ item }}"
+      state: present
+      insertafter: .*PS1=.*
+      insertafter: PS1=.*\n.*m.*\n.*31m.*
     with_items:
       - "{{ result.stdout_lines }}"
       - /root/.bashrc
-      - /etc/bashrc
       - /etc/skel/.bashrc
-    when: env is defined
+      - /etc/bashrc
     tags: ps
+    when: env is defined
+
+
+#  - name: append ps1 to bashrc
+#    lineinfile: |
+#      dest="{{ item }}"
+#      line="{{ bashps }}"
+#      insertafter=EOF
+#    with_items:
+#      - "{{ result.stdout_lines }}"
+#      - /root/.bashrc
+#      - /etc/bashrc
+#      - /etc/skel/.bashrc
+#    when: env is defined
+#    tags: ps

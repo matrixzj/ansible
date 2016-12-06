@@ -1,7 +1,5 @@
 ---
 bashps: |
-  # this block is managed by Ansible
   PS1='\n\
   \[\e[0;36m\]\u@\H\[\e[0;30;1m\]:\[\e[0;33m\]\w \[\e[0;30;1m\]· \@ \d ·\[\e[0m\] \n\
   \[\e[0;31m\]!\! \[\e[0;37;1m\]\$\[\e[0m\] '
-  # block end

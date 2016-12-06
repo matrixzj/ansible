@@ -9,11 +9,11 @@
       tags: systemd
 
     - name: update systemd
-      shell: yum list update systemd
-#      yum:
-#        name: systemd
-#        state: latest
-      register: result
+#      shell: yum list update systemd
+      yum:
+        name: systemd
+        state: latest
+      register: update_result
 #      debug:
 #        msg: "{{ inventory_hostname }} is running {{ version.stdout }}, need to be update"
       when: "{{ version.stdout | version_compare('219-19.el7_2.9','<') }}"
@@ -21,7 +21,7 @@
 
     - name: show result
       debug:
-        msg: "{{ result.stdout_lines }}"
+        var:  update_result.stdout_lines
       when: "{{ version.stdout | version_compare('219-19.el7_2.9','<') }}"
       tags: systemd
 
