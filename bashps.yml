@@ -43,8 +43,9 @@
       - "{{ result.stdout_lines }}"
       - /root/.bashrc
       - /etc/skel/.bashrc
+      - /etc/bashrc
     tags: ps
-    when: "{{ env }} is defined"
+    when: env is defined
 
   - name: append ps1 to bashrc
     lineinfile: |
@@ -54,6 +55,7 @@
     with_items:
       - "{{ result.stdout_lines }}"
       - /root/.bashrc
+      - /etc/bashrc
       - /etc/skel/.bashrc
-    when: "{{ env }} is defined"
+    when: env is defined
     tags: ps

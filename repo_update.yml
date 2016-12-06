@@ -1,0 +1,29 @@
+---
+- hosts: all
+  gather_facts: true
+
+  tasks:
+#  - name: remove older system repo
+#    shell: mv /etc/yum.repos.d/local.repo /etc/yum.repos.d/local.repo.bak
+#    when: ansible_distribution == 'RedHat'
+
+  - name: copy new system repo for RHEL
+    copy: 
+      src: /export/install/Cobbler/config/etc/yum.repos.d/rhel7.repo-{{ dc }}
+      dest: /etc/yum.repos.d/system-os.repo
+      backup: yes
+      mode: 0644
+      owner: root
+      group: root
+    when: ansible_distribution == 'RedHat'
+    tags: new
+  
+  - name: copy new system repo for CentOS
+    copy: 
+      src: /export/install/Cobbler/config/etc/yum.repos.d/centos7.repo-{{ dc }}
+      dest: /etc/yum.repos.d/system-os.repo
+      backup: yes
+      mode: 0644
+      owner: root
+      group: root
+    when: ansible_distribution == 'CentOS'
